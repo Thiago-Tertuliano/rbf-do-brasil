@@ -75,7 +75,7 @@ export default async function ProductDetailPage({ params }: Props) {
         <div className="mx-auto grid max-w-6xl gap-10 px-5 lg:grid-cols-[1.05fr_0.95fr] md:px-8">
           <Reveal>
             {product.image ? (
-              <div className="relative mb-8 aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-steel/30">
+              <div className="relative mb-8 aspect-[4/3] overflow-hidden rounded-3xl border border-line bg-white">
                 <Image
                   src={product.image}
                   alt={product.name}
@@ -183,7 +183,7 @@ export default async function ProductDetailPage({ params }: Props) {
                   className="overflow-hidden rounded-2xl border border-line bg-steel/25 transition hover:border-accent/40"
                 >
                   {item.image ? (
-                    <div className="relative aspect-[4/3] bg-ink/20">
+                    <div className="relative aspect-[4/3] bg-white">
                       <Image
                         src={item.image}
                         alt={item.name}

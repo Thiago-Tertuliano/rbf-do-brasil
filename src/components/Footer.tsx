@@ -1,3 +1,4 @@
+import { EcosusSeal } from "@/components/EcosusSeal";
 import { BRAND, NAV, SITE } from "@/lib/content";
 import Image from "next/image";
 import Link from "next/link";
@@ -5,15 +6,17 @@ import Link from "next/link";
 export function Footer() {
   return (
     <footer className="border-t border-line section-soft">
-      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.2fr_1fr_1fr] md:px-8">
+      <div className="mx-auto grid max-w-6xl gap-10 px-5 py-14 md:grid-cols-[1.15fr_1fr_1fr_auto] md:items-start md:px-8">
         <div>
-          <Image
-            src={BRAND.logo}
-            alt={SITE.name}
-            width={130}
-            height={48}
-            className="h-10 w-auto object-contain"
-          />
+          <div className="inline-flex rounded-lg border border-accent/30 bg-white px-3 py-2">
+            <Image
+              src={BRAND.logo}
+              alt={SITE.name}
+              width={140}
+              height={52}
+              className="h-10 w-auto object-contain"
+            />
+          </div>
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-mist">
             {SITE.tagline}. {SITE.description}
           </p>
@@ -62,6 +65,13 @@ export function Footer() {
             </li>
             <li className="pt-1 leading-relaxed">{SITE.address}</li>
           </ul>
+        </div>
+
+        <div className="flex flex-col items-start gap-2 md:items-center">
+          <EcosusSeal size={118} id="footer-ecosus" />
+          <p className="max-w-[9.5rem] text-[0.65rem] leading-snug text-muted md:text-center">
+            Logística reversa e reciclagem responsável
+          </p>
         </div>
       </div>
 

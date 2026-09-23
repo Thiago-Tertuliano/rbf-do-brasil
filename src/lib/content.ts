@@ -2,7 +2,7 @@ export const SITE = {
   name: "RBF do Brasil",
   tagline: "Gerar, condicionar e proteger",
   description:
-    "Fabricante de nobreaks com instalação, manutenção e pós-venda no ABC e Grande SP. Orçamento técnico em minutos pelo WhatsApp.",
+    "Fabricante de nobreaks com instalação, manutenção e pós-venda no Brasil. Orçamento técnico em minutos pelo WhatsApp.",
   phone: "+55 (11) 4227-2380",
   phoneHref: "tel:+551142272380",
   whatsapp: "+55 (11) 98643-8210",
@@ -21,7 +21,7 @@ export const SITE = {
   guarantees: [
     "Orçamento sem custo",
     "Resposta técnica rápida",
-    "Pós-venda no ABC e Grande SP",
+    "Pós-venda no Brasil",
   ],
 } as const;
 
@@ -318,7 +318,10 @@ export const BRAND = {
   logo: "/images/brand/logo.png",
   reviewsBadge: "/images/brand/avaliacoes-google.png",
   ecosus: "/images/ecosus/programa-ecosus.jpg",
+  ecosusIcon: "/images/ecosus/icone-ecosus.png",
   sustentabilidade: "/images/ecosus/sustentabilidade.jpg",
+  hero: "/images/home/hero-equipamentos.jpg",
+  lineup: "/images/home/hero-linha.jpg",
 } as const;
 
 export const CLIENT_LOGOS = Array.from({ length: 17 }, (_, i) => {
@@ -555,28 +558,7 @@ export const ABOUT = {
   ],
 } as const;
 
-export const CATALOGS = [
-  {
-    slug: "nobreaks",
-    title: "Catálogo de Nobreaks",
-    description: "Linhas senoidal, dupla conversão, trifásico, Strong, Eco e semi-senoidal.",
-  },
-  {
-    slug: "protecao",
-    title: "Proteção e Isolamento",
-    description: "Isolar, transformadores isoladores e auto-transformadores.",
-  },
-  {
-    slug: "baterias",
-    title: "Baterias e Acessórios",
-    description: "FE VRLA, BSE estacionárias e placas SNMP.",
-  },
-  {
-    slug: "servicos",
-    title: "Portfólio de Serviços",
-    description: "Manutenção, instalação, locação, contratos e assistência técnica.",
-  },
-] as const;
+export { CATALOGS } from "./catalogs";
 
 export type InfoPage = {
   slug: string;
@@ -666,7 +648,7 @@ export const INFO_PAGES: InfoPage[] = [
   {
     slug: "distribuidora-de-nobreaks",
     title: "Distribuidora de Nobreaks",
-    description: "Fornecimento ágil com suporte técnico no ABC e Grande SP.",
+    description: "Fornecimento ágil com suporte técnico no Brasil.",
     body: [
       "Além da fabricação, atuamos com distribuição e fornecimento de linhas completas de proteção elétrica.",
       "Atendimento comercial e técnico para empresas de diferentes portes e setores.",
@@ -716,7 +698,7 @@ export const FAQS = [
   },
   {
     q: "Em quais regiões a RBF do Brasil atende?",
-    a: "Atendemos o ABC Paulista e toda a Grande São Paulo com instalação, manutenção e pós-venda. Para fornecimento de equipamentos, atendemos todo o território nacional.",
+    a: "Atendemos todo o Brasil no fornecimento de equipamentos, com instalação, manutenção e pós-venda.",
   },
   {
     q: "Como funciona o orçamento? Tem custo?",

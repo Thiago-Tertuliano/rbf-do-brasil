@@ -3,10 +3,11 @@
 import { Reveal } from "@/components/Reveal";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
 import { track } from "@/lib/analytics";
-import { whatsappMessage } from "@/lib/content";
+import { BRAND, whatsappMessage } from "@/lib/content";
 import { easeOut } from "@/lib/motion";
 import { motion } from "framer-motion";
 import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 export function CTABanner() {
   const waHref = whatsappMessage(
@@ -14,15 +15,16 @@ export function CTABanner() {
   );
 
   return (
-    <section className="section-pad relative overflow-hidden section-blue-gradient">
-      <motion.div
-        className="pointer-events-none absolute inset-0 opacity-15"
-        animate={{ rotate: [0, 8, 0] }}
-        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="absolute top-10 right-10 size-72 rounded-full border-2 border-white/30" />
-        <div className="absolute bottom-16 left-16 size-56 rounded-full border-2 border-white/20" />
-      </motion.div>
+    <section className="section-pad relative overflow-hidden">
+      <Image
+        src={BRAND.lineup}
+        alt=""
+        fill
+        aria-hidden
+        className="object-cover object-center"
+        sizes="100vw"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#2a4480]/92 via-[#3a5dae]/88 to-[#3a5dae]/80" />
 
       <div className="relative mx-auto max-w-4xl px-5 text-center md:px-8">
         <Reveal blur>
@@ -37,7 +39,7 @@ export function CTABanner() {
           </motion.h2>
           <p className="mx-auto mt-5 max-w-2xl text-base text-white/90 md:text-lg">
             Solicite orçamento agora e receba atendimento técnico personalizado
-            da RBF do Brasil — fabricante com pós-venda no ABC e Grande SP.
+            da RBF do Brasil — fabricante com pós-venda no Brasil.
           </p>
           <div className="mt-8 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <motion.a

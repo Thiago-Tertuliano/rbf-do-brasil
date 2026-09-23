@@ -21,7 +21,7 @@ export const metadata: Metadata = {
     template: "%s | RBF do Brasil",
   },
   description:
-    "Fabricante de nobreaks, estabilizadores e transformadores. Instalação, manutenção e pós-venda no ABC e Grande SP. Orçamento técnico pelo WhatsApp.",
+    "Fabricante de nobreaks, estabilizadores e transformadores. Instalação, manutenção e pós-venda no Brasil. Orçamento técnico pelo WhatsApp.",
   keywords: [
     "nobreak",
     "fabricante de nobreak",
@@ -44,10 +44,10 @@ export const metadata: Metadata = {
       "Gerar, condicionar e proteger. Nobreaks, estabilizadores e transformadores com fabricação, instalação e pós-venda.",
     images: [
       {
-        url: "/images/produtos/dupla-conversao.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Nobreak Dupla Conversão RBF do Brasil",
+        url: "/images/home/hero-equipamentos.jpg",
+        width: 1178,
+        height: 600,
+        alt: "Linha de nobreaks RBF do Brasil",
       },
     ],
   },
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     title: "Nobreak e Energia Condicionada | RBF do Brasil",
     description:
       "Gerar, condicionar e proteger. Solicite orçamento com a RBF do Brasil.",
-    images: ["/images/produtos/dupla-conversao.jpg"],
+    images: ["/images/home/hero-equipamentos.jpg"],
   },
   formatDetection: {
     telephone: true,
@@ -74,7 +74,7 @@ const jsonLd = {
     "Fabricante e fornecedora de nobreaks, estabilizadores e transformadores.",
   url: "https://www.rbfbrasil.com.br",
   logo: "https://www.rbfbrasil.com.br/images/brand/logo.png",
-  image: "https://www.rbfbrasil.com.br/images/produtos/dupla-conversao.jpg",
+  image: "https://www.rbfbrasil.com.br/images/home/hero-equipamentos.jpg",
   telephone: "+55-11-4227-2380",
   email: "vendas@rbfbrasil.com.br",
   priceRange: "$$",

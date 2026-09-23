@@ -1,9 +1,8 @@
 "use client";
 
+import { EcosusSeal } from "@/components/EcosusSeal";
 import { Reveal } from "@/components/Reveal";
-import { BRAND } from "@/lib/content";
 import { Leaf, Recycle } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 
 export function EcosusSection() {
@@ -40,14 +39,8 @@ export function EcosusSection() {
               </Link>
             </div>
 
-            <div className="relative min-h-[240px] md:min-h-full">
-              <Image
-                src={BRAND.ecosus}
-                alt="Programa ECOSUS RBF do Brasil"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 40vw"
-              />
+            <div className="flex min-h-[240px] items-center justify-center self-stretch bg-[#f3f8f4] p-8 md:p-10">
+              <EcosusSeal size={196} id="home-ecosus" />
             </div>
           </div>
         </Reveal>

@@ -2,7 +2,8 @@
 
 import { Reveal } from "@/components/Reveal";
 import { WhatsAppIcon } from "@/components/WhatsAppIcon";
-import { SITE } from "@/lib/content";
+import { BRAND, SITE } from "@/lib/content";
+import Image from "next/image";
 import Link from "next/link";
 
 type PageHeroProps = {
@@ -19,9 +20,18 @@ export function PageHero({
   crumbs,
 }: PageHeroProps) {
   return (
-    <section className="relative overflow-hidden border-b border-line section-soft pt-28 pb-14 md:pt-32 md:pb-16">
-      <div className="absolute inset-0 mesh-glow opacity-70" />
-      <div className="absolute inset-0 grid-atmosphere opacity-40" />
+    <section className="relative overflow-hidden border-b border-line pt-28 pb-14 md:pt-32 md:pb-16">
+      <Image
+        src={BRAND.hero}
+        alt=""
+        fill
+        priority
+        aria-hidden
+        className="object-cover object-[center_70%] opacity-40"
+        sizes="100vw"
+      />
+      <div className="absolute inset-0 bg-gradient-to-r from-[#eef2fa] via-[#eef2fa]/92 to-[#eef2fa]/70" />
+      <div className="absolute inset-0 mesh-glow opacity-50" />
       <div className="relative mx-auto max-w-6xl px-5 md:px-8">
         {crumbs ? (
           <nav className="mb-6 flex flex-wrap items-center gap-2 text-xs text-muted">

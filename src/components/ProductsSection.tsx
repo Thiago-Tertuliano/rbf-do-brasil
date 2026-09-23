@@ -40,7 +40,7 @@ export function ProductsSection({ limit }: { limit?: number }) {
                   href={`/produtos/${product.slug}`}
                   className="group flex h-full flex-col overflow-hidden rounded-2xl border border-line bg-panel shadow-sm transition hover:border-accent/40 hover:shadow-[0_24px_60px_rgba(58,93,174,0.14)]"
                 >
-                  <div className="relative aspect-[4/3] overflow-hidden bg-ink/40">
+                  <div className="relative aspect-[4/3] overflow-hidden bg-white">
                     {product.image ? (
                       <Image
                         src={product.image}

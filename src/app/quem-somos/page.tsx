@@ -2,14 +2,15 @@ import { CTABanner } from "@/components/CTABanner";
 import { Reveal } from "@/components/Reveal";
 import { SiteShell } from "@/components/SiteShell";
 import { PageHero } from "@/components/PageHero";
-import { ABOUT, SITE, WHY } from "@/lib/content";
+import { ABOUT, BRAND, SITE, WHY } from "@/lib/content";
 import type { Metadata } from "next";
+import Image from "next/image";
 import { BadgeCheck, Eye, Handshake, Heart, Target, Wrench } from "lucide-react";
 
 export const metadata: Metadata = {
   title: "Quem Somos",
   description:
-    "Conheça a RBF do Brasil: mais de 18 anos em energia condicionada, nobreaks, estabilizadores e pós-venda no ABC e Grande SP.",
+    "Conheça a RBF do Brasil: mais de 18 anos em energia condicionada, nobreaks, estabilizadores e pós-venda no Brasil.",
   alternates: { canonical: "/quem-somos" },
 };
 
@@ -30,7 +31,7 @@ export default function QuemSomosPage() {
 
       <section className="section-pad section-surface">
         <div className="mx-auto max-w-6xl px-5 md:px-8">
-          <div className="grid gap-8 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-center">
             <Reveal>
               <p className="text-lg leading-relaxed text-mist">{ABOUT.body}</p>
               <p className="mt-6 text-mist">
@@ -40,20 +41,30 @@ export default function QuemSomosPage() {
               </p>
             </Reveal>
             <Reveal delay={0.08}>
-              <div className="grid gap-4 sm:grid-cols-3 lg:grid-cols-1">
-                {SITE.stats.map((stat) => (
-                  <div
-                    key={stat.label}
-                    className="rounded-2xl border border-line bg-steel/30 p-5"
-                  >
-                    <p className="font-display text-3xl font-bold text-accent">
-                      {stat.prefix}
-                      {stat.numeric}
-                      {stat.suffix}
-                    </p>
-                    <p className="mt-1 text-sm text-mist">{stat.label}</p>
-                  </div>
-                ))}
+              <div className="relative overflow-hidden rounded-3xl border border-accent/20 shadow-[0_24px_60px_rgba(58,93,174,0.16)]">
+                <div className="relative aspect-[16/10]">
+                  <Image
+                    src={BRAND.lineup}
+                    alt="Equipamentos RBF do Brasil"
+                    fill
+                    className="object-cover object-center"
+                    sizes="(max-width: 1024px) 100vw, 50vw"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-px bg-accent/20">
+                  {SITE.stats.map((stat) => (
+                    <div key={stat.label} className="bg-panel px-3 py-4 text-center">
+                      <p className="font-display text-xl font-bold text-accent md:text-2xl">
+                        {stat.prefix}
+                        {stat.numeric}
+                        {stat.suffix}
+                      </p>
+                      <p className="mt-1 text-[0.7rem] text-mist md:text-xs">
+                        {stat.label}
+                      </p>
+                    </div>
+                  ))}
+                </div>
               </div>
             </Reveal>
           </div>

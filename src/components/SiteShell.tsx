@@ -1,4 +1,5 @@
 import { Footer } from "@/components/Footer";
+import { IntroFloat } from "@/components/Intro";
 import { Navbar } from "@/components/Navbar";
 import { PageTransition } from "@/components/PageTransition";
 import { ScrollProgress } from "@/components/ScrollProgress";
@@ -20,7 +21,10 @@ export function SiteShell({
         <main>{children}</main>
       </PageTransition>
       <Footer />
-      {showWhatsApp ? <WhatsAppFloat /> : null}
+      <div className="fixed right-4 bottom-4 z-50 flex flex-col items-center gap-3 md:right-6 md:bottom-6">
+        <IntroFloat />
+        {showWhatsApp ? <WhatsAppFloat /> : null}
+      </div>
     </>
   );
 }

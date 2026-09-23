@@ -69,7 +69,7 @@ export function ContactSection() {
               Solicite seu orçamento com a RBF do Brasil
             </h2>
             <p className="mt-4 text-mist">
-              Atendimento rápido no ABC e Grande SP. Preencha os dados ou fale
+              Atendimento rápido no Brasil. Preencha os dados ou fale
               direto no WhatsApp.
             </p>
 

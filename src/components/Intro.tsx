@@ -1,21 +1,17 @@
 "use client";
 
+import { BRAND } from "@/lib/content";
 import { AnimatePresence, motion } from "framer-motion";
+import { Minimize2, Play } from "lucide-react";
+import Image from "next/image";
 import { useEffect, useState } from "react";
 
-type IntroProps = {
-  onComplete: () => void;
-};
-
-type Phase = "grid" | "out" | "save" | "back" | "exit";
+type Phase = "grid" | "out" | "save" | "back";
 type LoadState = "online" | "risk" | "protected" | "nominal";
 
-const ORDER: Exclude<Phase, "exit">[] = ["grid", "out", "save", "back"];
+const ORDER: Phase[] = ["grid", "out", "save", "back"];
 
-const SCENES: Record<
-  Exclude<Phase, "exit">,
-  { step: string; title: string; sub: string }
-> = {
+const SCENES: Record<Phase, { step: string; title: string; sub: string }> = {
   grid: {
     step: "Operação normal",
     title: "Cargas críticas alimentadas pela rede",
@@ -37,6 +33,8 @@ const SCENES: Record<
     sub: "Gerar. Condicionar. Proteger.",
   },
 };
+
+const TIMING = { out: 5200, save: 10000, back: 16500, loop: 24000, bar: 5.2 } as const;
 
 const LOADS = [
   {
@@ -84,30 +82,134 @@ const STATE_CHIP: Record<LoadState, string> = {
   nominal: "ESTÁVEL",
 };
 
-export function Intro({ onComplete }: IntroProps) {
+export function IntroFloat() {
+  const [expanded, setExpanded] = useState(false);
+
+  useEffect(() => {
+    if (!expanded) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setExpanded(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [expanded]);
+
+  return (
+    <>
+      <motion.button
+        type="button"
+        onClick={() => setExpanded(true)}
+        className="relative flex size-14 items-center justify-center overflow-visible rounded-full bg-accent text-white shadow-[0_12px_32px_rgba(58,93,174,0.38)]"
+        initial={{ opacity: 0, y: 20, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ delay: 0.7, duration: 0.5, type: "spring", stiffness: 260 }}
+        whileHover={{ scale: 1.06, y: -2 }}
+        whileTap={{ scale: 0.96 }}
+        aria-label="Ver como o nobreak protege a operação"
+        title="Como o nobreak protege"
+      >
+        <motion.span
+          className="absolute inset-0 rounded-full bg-accent"
+          animate={{ scale: [1, 1.35, 1], opacity: [0.4, 0, 0.4] }}
+          transition={{ duration: 2.6, repeat: Infinity, ease: "easeOut" }}
+          aria-hidden
+        />
+        <Play className="relative size-5 fill-current" />
+      </motion.button>
+
+      <AnimatePresence>
+        {expanded ? (
+          <motion.div
+            className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.28 }}
+          >
+            <button
+              type="button"
+              aria-label="Fechar apresentação"
+              className="absolute inset-0 bg-[#050814]/80 backdrop-blur-md"
+              onClick={() => setExpanded(false)}
+            />
+            <motion.div
+              className="relative z-10 h-full w-full max-h-[92vh] max-w-6xl overflow-hidden rounded-3xl border border-white/10 shadow-[0_40px_100px_rgba(0,0,0,0.45)]"
+              initial={{ scale: 0.92, opacity: 0, y: 18 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.96, opacity: 0 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <PlayerShell onCollapse={() => setExpanded(false)} />
+            </motion.div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </>
+  );
+}
+
+function PlayerShell({ onCollapse }: { onCollapse: () => void }) {
+  return (
+    <div className="relative flex h-full min-h-[70vh] flex-col overflow-hidden bg-[#070b14]">
+      <Image
+        src={BRAND.lineup}
+        alt=""
+        fill
+        aria-hidden
+        className="object-cover object-center opacity-40"
+        sizes="100vw"
+      />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#07101f]/92 via-[#0b1730]/78 to-[#08111f]/90" />
+      <div className="absolute inset-0 mesh-glow opacity-50" />
+
+      <div className="relative z-10 flex items-center justify-between gap-3 px-3 py-2.5 sm:px-4">
+        <p className="font-display text-[0.62rem] font-semibold tracking-[0.22em] text-white/80 uppercase">
+          Como o nobreak protege
+        </p>
+        <button
+          type="button"
+          onClick={onCollapse}
+          className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1.5 text-[0.65rem] font-semibold tracking-wide text-white uppercase backdrop-blur transition hover:bg-white/20"
+        >
+          <Minimize2 className="size-3.5" />
+          Sair da tela cheia
+        </button>
+      </div>
+
+      <IntroScene />
+    </div>
+  );
+}
+
+function IntroScene() {
+  const compact = false;
   const [phase, setPhase] = useState<Phase>("grid");
   const [flash, setFlash] = useState(false);
+  const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
     const reduced =
       typeof window !== "undefined" &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
     if (reduced) {
-      onComplete();
+      setPhase("back");
       return;
     }
 
+    setPhase("grid");
     const timers = [
-      window.setTimeout(() => setPhase("out"), 2100),
-      window.setTimeout(() => setPhase("save"), 4000),
-      window.setTimeout(() => setPhase("back"), 6300),
-      window.setTimeout(() => setPhase("exit"), 8500),
-      window.setTimeout(() => onComplete(), 9400),
+      window.setTimeout(() => setPhase("out"), TIMING.out),
+      window.setTimeout(() => setPhase("save"), TIMING.save),
+      window.setTimeout(() => setPhase("back"), TIMING.back),
+      window.setTimeout(() => setCycle((n) => n + 1), TIMING.loop),
     ];
-
-    return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [onComplete]);
+    return () => timers.forEach((id) => window.clearTimeout(id));
+  }, [cycle]);
 
   useEffect(() => {
     if (phase !== "out") return;
@@ -117,8 +219,8 @@ export function Intro({ onComplete }: IntroProps) {
   }, [phase]);
 
   const blackout = phase === "out";
-  const utilityLive = phase === "grid" || phase === "back" || phase === "exit";
-  const nobreakOn = phase === "save" || phase === "back" || phase === "exit";
+  const utilityLive = phase === "grid" || phase === "back";
+  const nobreakOn = phase === "save" || phase === "back";
   const onBattery = phase === "save";
   const utilityDown = blackout || onBattery;
 
@@ -130,252 +232,179 @@ export function Intro({ onComplete }: IntroProps) {
         ? "online"
         : "nominal";
 
-  const scene = phase === "exit" ? SCENES.back : SCENES[phase];
-  const activeIndex = phase === "exit" ? 3 : ORDER.indexOf(phase);
+  const scene = SCENES[phase];
+  const activeIndex = ORDER.indexOf(phase);
+  const accent = blackout
+    ? "#ff5f63"
+    : onBattery
+      ? "#12b981"
+      : "#7eb6ff";
 
-  const ui = blackout
-    ? {
-        line: "#1e2836",
-        panel: "#0c1320",
-        edge: "#1f2a3c",
-        label: "rgba(226,236,255,0.94)",
-        muted: "rgba(198,214,240,0.5)",
-        chipBg: "rgba(255,255,255,0.06)",
-      }
-    : {
-        line: "#c4d0e3",
-        panel: "#ffffff",
-        edge: "#dde5f1",
-        label: "#0c1424",
-        muted: "#5a6b88",
-        chipBg: "rgba(12,20,36,0.04)",
-      };
-
-  const stateColor: Record<LoadState, string> = {
-    online: "#3a5dae",
-    risk: blackout ? "#ff5f63" : "#e5484d",
-    protected: "#12b981",
-    nominal: "#3a5dae",
+  const ui: Ui = {
+    line: blackout ? "#2a3548" : "rgba(180,205,240,0.35)",
+    panel: blackout ? "#101826" : "rgba(12,22,40,0.78)",
+    edge: blackout ? "#2c3a52" : "rgba(255,255,255,0.14)",
+    label: "#f4f7ff",
+    muted: "rgba(198,214,240,0.7)",
+    chipBg: "rgba(255,255,255,0.06)",
   };
-  const accent = stateColor[loadState];
 
   return (
-    <motion.div
-      className="fixed inset-0 z-[100] flex flex-col items-center justify-center overflow-hidden"
-      animate={
-        phase === "exit"
-          ? { opacity: 0, scale: 1.04, filter: "blur(6px)" }
-          : { opacity: 1, scale: 1, filter: "blur(0px)" }
-      }
-      transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-      aria-hidden={phase === "exit"}
-    >
-      {/* Fundo */}
-      <motion.div
-        className="absolute inset-0"
-        animate={{
-          background: blackout
-            ? "linear-gradient(180deg, #05080f 0%, #080e1a 55%, #04060c 100%)"
-            : "linear-gradient(180deg, #eef2f9 0%, #f8fafd 45%, #e9eff8 100%)",
-        }}
-        transition={{ duration: blackout ? 0.22 : 0.7 }}
-      />
-
-      {/* Malha técnica de fundo */}
-      <BlueprintGrid
-        color="rgba(58,93,174,0.075)"
-        visible={!blackout}
-      />
-      <BlueprintGrid
-        color="rgba(126,182,255,0.055)"
-        visible={blackout}
-      />
-
-      {/* Vinheta de alarme durante a falha */}
+    <div className="relative flex flex-1 flex-col items-center px-3 pb-4 sm:px-5">
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 85% 65% at 50% 50%, rgba(229,72,77,0.2), transparent 70%)",
+            "radial-gradient(ellipse 80% 60% at 50% 50%, rgba(229,72,77,0.28), transparent 70%)",
         }}
         animate={{ opacity: blackout ? 1 : 0 }}
-        transition={{ duration: 0.35 }}
       />
-
-      {/* Glow do nobreak sustentando a carga */}
       <motion.div
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "radial-gradient(ellipse 60% 45% at 35% 55%, rgba(58,93,174,0.26), transparent 68%)",
+            "radial-gradient(ellipse 55% 45% at 35% 55%, rgba(58,93,174,0.35), transparent 68%)",
         }}
         animate={{ opacity: nobreakOn ? 1 : 0 }}
-        transition={{ duration: 0.7 }}
       />
 
-      {/* Flash da comutação */}
       <AnimatePresence>
         {flash ? (
           <motion.div
             className="pointer-events-none absolute inset-0 bg-white"
             initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 0.8, 0.1, 0.45, 0] }}
+            animate={{ opacity: [0, 0.7, 0.08, 0.35, 0] }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.5, times: [0, 0.1, 0.3, 0.45, 1] }}
           />
         ) : null}
       </AnimatePresence>
 
-      <div className="relative z-10 flex max-h-[94vh] w-full max-w-4xl flex-col items-center px-5">
-        {/* Etiqueta de contexto */}
-        <div
-          className="mb-4 inline-flex items-center gap-2 rounded-full border px-3 py-1"
-          style={{
-            borderColor: blackout
-              ? "rgba(255,255,255,0.14)"
-              : "rgba(12,20,36,0.1)",
-            background: ui.chipBg,
-          }}
+      <div
+        className="mb-2 inline-flex items-center gap-2 rounded-full border px-3 py-1"
+        style={{ borderColor: "rgba(255,255,255,0.12)", background: ui.chipBg }}
+      >
+        <motion.span
+          className="size-1.5 rounded-full"
+          style={{ background: accent }}
+          animate={{ opacity: [1, 0.3, 1] }}
+          transition={{ duration: 1.4, repeat: Infinity }}
+        />
+        <span className="font-display text-[0.58rem] font-semibold tracking-[0.2em] text-white/70 uppercase">
+          RBF · Continuidade crítica
+        </span>
+      </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={`${scene.title}-${cycle}`}
+          className="mb-2 text-center"
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.4 }}
         >
-          <motion.span
-            className="size-1.5 rounded-full"
-            style={{ background: accent }}
-            animate={{ opacity: [1, 0.3, 1] }}
-            transition={{ duration: 1.4, repeat: Infinity }}
-          />
-          <span
-            className="font-display text-[0.6rem] font-semibold tracking-[0.24em] uppercase"
-            style={{ color: ui.muted }}
+          <p
+            className="mb-1 font-display text-[0.62rem] font-semibold tracking-[0.28em] uppercase"
+            style={{ color: accent }}
           >
-            RBF · Continuidade de cargas críticas
-          </span>
-        </div>
-
-        {/* Texto da cena */}
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={scene.title}
-            className="mb-5 text-center"
-            initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-            transition={{ duration: 0.42, ease: [0.22, 1, 0.36, 1] }}
+            {scene.step}
+          </p>
+          <h3
+            className={
+              compact
+                ? "font-display text-sm font-bold tracking-tight text-white text-balance sm:text-base"
+                : "font-display text-xl font-bold tracking-tight text-white text-balance sm:text-3xl"
+            }
           >
-            <p
-              className="mb-2 font-display text-[0.65rem] font-semibold tracking-[0.32em] uppercase"
-              style={{ color: accent }}
-            >
-              {scene.step}
-            </p>
-            <h2
-              className="font-display text-xl font-bold tracking-tight text-balance sm:text-3xl"
-              style={{ color: ui.label }}
-            >
-              {scene.title}
-            </h2>
-            <p
-              className="mt-2 text-[0.8rem] text-balance sm:text-sm"
-              style={{ color: ui.muted }}
-            >
-              {scene.sub}
-            </p>
-          </motion.div>
-        </AnimatePresence>
+            {scene.title}
+          </h3>
+          {compact ? null : (
+            <p className="mt-2 text-sm text-white/70 text-balance">{scene.sub}</p>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
-        {/* Diagrama unifilar */}
-        <svg
-          viewBox="0 0 960 370"
-          className="max-h-[40vh] w-full"
-          role="img"
-          aria-label="Diagrama unifilar: rede pública, nobreak RBF e cargas críticas"
-        >
-          <Utility live={utilityLive} down={utilityDown} ui={ui} />
-
-          {/* Alimentador da concessionária */}
+      <svg
+        viewBox="0 0 960 370"
+        className={compact ? "w-full" : "max-h-[46vh] w-full"}
+        role="img"
+        aria-label="Diagrama unifilar: rede pública, nobreak RBF e cargas críticas"
+      >
+        <Utility live={utilityLive} down={utilityDown} ui={ui} />
+        <Feeder
+          d="M 136 185 H 190"
+          active={utilityLive}
+          color="#7eb6ff"
+          idle={ui.line}
+          dead={utilityDown}
+          fault={utilityDown}
+        />
+        {LOADS.map((load) => (
           <Feeder
-            d="M 136 185 H 190"
-            active={utilityLive}
-            color="#3a5dae"
+            key={load.id}
+            d={load.path}
+            active={!blackout}
+            color={onBattery ? "#12b981" : "#7eb6ff"}
             idle={ui.line}
-            dead={utilityDown}
-            fault={utilityDown}
+            dead={blackout}
+            glow={onBattery}
           />
-
-          {/* Barramento e ramais para as cargas críticas */}
-          {LOADS.map((load) => (
-            <Feeder
-              key={load.id}
-              d={load.path}
-              active={!blackout}
-              color={onBattery ? "#12b981" : "#3a5dae"}
-              idle={ui.line}
-              dead={blackout}
-              glow={onBattery}
-            />
-          ))}
-
-          <NobreakModule
-            active={nobreakOn}
-            onBattery={onBattery}
-            blackout={blackout}
+        ))}
+        <NobreakModule
+          active={nobreakOn}
+          onBattery={onBattery}
+          blackout={blackout}
+          ui={ui}
+        />
+        {LOADS.map((load) => (
+          <LoadNode
+            key={load.id}
+            y={load.y}
+            title={load.title}
+            metric={load.metric[loadState]}
+            state={loadState}
+            color={accent}
             ui={ui}
+            compact={compact}
+            renderIcon={ICONS[load.id]}
           />
+        ))}
+      </svg>
 
-          {LOADS.map((load) => (
-            <LoadNode
-              key={load.id}
-              y={load.y}
-              title={load.title}
-              metric={load.metric[loadState]}
-              state={loadState}
-              color={accent}
-              ui={ui}
-              renderIcon={ICONS[load.id]}
-            />
-          ))}
-        </svg>
-
-        {/* Linha do tempo */}
-        <div className="mt-6 flex w-full max-w-xl items-center gap-2">
-          {ORDER.map((id, i) => {
-            const done = i < activeIndex;
-            const active = i === activeIndex;
-            return (
-              <div key={id} className="flex flex-1 flex-col gap-2">
-                <div
-                  className="h-[3px] w-full overflow-hidden rounded-full"
-                  style={{
-                    background: blackout
-                      ? "rgba(255,255,255,0.12)"
-                      : "rgba(12,20,36,0.1)",
+      <div className={`mt-3 flex w-full items-center gap-2 ${compact ? "max-w-none" : "max-w-xl"}`}>
+        {ORDER.map((id, i) => {
+          const done = i < activeIndex;
+          const active = i === activeIndex;
+          return (
+            <div key={id} className="flex flex-1 flex-col gap-1.5">
+              <div className="h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+                <motion.div
+                  className="h-full origin-left rounded-full"
+                  style={{ background: active || done ? accent : "transparent" }}
+                  initial={{ scaleX: 0 }}
+                  animate={{ scaleX: done || active ? 1 : 0 }}
+                  transition={{
+                    duration: active ? TIMING.bar : 0.3,
+                    ease: "easeInOut",
                   }}
-                >
-                  <motion.div
-                    className="h-full origin-left rounded-full"
-                    style={{ background: active || done ? accent : "transparent" }}
-                    initial={{ scaleX: 0 }}
-                    animate={{ scaleX: done || active ? 1 : 0 }}
-                    transition={{
-                      duration: active ? 2 : 0.3,
-                      ease: "easeInOut",
-                    }}
-                  />
-                </div>
+                />
+              </div>
+              {compact ? null : (
                 <span
-                  className="font-display text-[0.58rem] font-semibold tracking-[0.14em] uppercase"
+                  className="font-display text-[0.58rem] font-semibold tracking-[0.12em] uppercase"
                   style={{
-                    color: active ? accent : ui.muted,
-                    opacity: active ? 1 : 0.6,
+                    color: active ? accent : "rgba(198,214,240,0.55)",
                   }}
                 >
                   {SCENES[id].step}
                 </span>
-              </div>
-            );
-          })}
-        </div>
+              )}
+            </div>
+          );
+        })}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -388,30 +417,6 @@ type Ui = {
   chipBg: string;
 };
 
-function BlueprintGrid({
-  color,
-  visible,
-}: {
-  color: string;
-  visible: boolean;
-}) {
-  return (
-    <motion.div
-      className="pointer-events-none absolute inset-0"
-      style={{
-        backgroundImage: `linear-gradient(to right, ${color} 1px, transparent 1px), linear-gradient(to bottom, ${color} 1px, transparent 1px)`,
-        backgroundSize: "48px 48px",
-        maskImage:
-          "radial-gradient(ellipse 75% 65% at 50% 50%, #000 40%, transparent 100%)",
-        WebkitMaskImage:
-          "radial-gradient(ellipse 75% 65% at 50% 50%, #000 40%, transparent 100%)",
-      }}
-      animate={{ opacity: visible ? 1 : 0 }}
-      transition={{ duration: 0.4 }}
-    />
-  );
-}
-
 function Utility({
   live,
   down,
@@ -421,7 +426,7 @@ function Utility({
   down: boolean;
   ui: Ui;
 }) {
-  const glyph = live ? "#3a5dae" : down ? "#ff5f63" : ui.muted;
+  const glyph = live ? "#7eb6ff" : down ? "#ff5f63" : ui.muted;
 
   return (
     <g>
@@ -435,8 +440,6 @@ function Utility({
         stroke={down ? "#ff5f63" : ui.edge}
         strokeWidth="1.5"
       />
-
-      {/* Glifo de torre de transmissão */}
       <g transform="translate(78 176)" opacity={down ? 0.75 : 1}>
         <path
           d="M -11 14 L -4 -12 L 4 -12 L 11 14"
@@ -446,8 +449,24 @@ function Utility({
           strokeLinecap="round"
         />
         <line x1="-9" y1="4" x2="9" y2="4" stroke={glyph} strokeWidth="1.6" />
-        <line x1="-16" y1="-8" x2="16" y2="-8" stroke={glyph} strokeWidth="2" strokeLinecap="round" />
-        <line x1="-12" y1="-14" x2="12" y2="-14" stroke={glyph} strokeWidth="2" strokeLinecap="round" />
+        <line
+          x1="-16"
+          y1="-8"
+          x2="16"
+          y2="-8"
+          stroke={glyph}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
+        <line
+          x1="-12"
+          y1="-14"
+          x2="12"
+          y2="-14"
+          stroke={glyph}
+          strokeWidth="2"
+          strokeLinecap="round"
+        />
         <motion.circle
           cx="0"
           cy="-16"
@@ -455,7 +474,6 @@ function Utility({
           animate={{ fill: live ? "#7eb6ff" : down ? "#ff5f63" : ui.muted }}
         />
       </g>
-
       <text
         x="78"
         y="212"
@@ -513,8 +531,6 @@ function Feeder({
           <FlowDot d={d} color={color} begin={0.8} />
         </>
       ) : null}
-
-      {/* Marca de abertura do trecho */}
       {fault && !active ? <FaultMark d={d} /> : null}
     </>
   );
@@ -542,7 +558,6 @@ function FlowDot({
 }
 
 function FaultMark({ d }: { d: string }) {
-  // Trecho rede -> nobreak: marca o ponto de abertura no meio do alimentador.
   const match = d.match(/M (\d+) (\d+) H (\d+)/);
   if (!match) return null;
   const cx = (Number(match[1]) + Number(match[3])) / 2;
@@ -593,7 +608,6 @@ function NobreakModule({
 
   return (
     <g>
-      {/* Pulso de operação */}
       {active
         ? [0, 1].map((i) => (
             <motion.rect
@@ -645,12 +659,11 @@ function NobreakModule({
           fontSize: 14,
           fontWeight: 800,
           letterSpacing: "0.14em",
-          fill: active ? "#3a5dae" : ui.label,
+          fill: active ? "#7eb6ff" : ui.label,
         }}
       >
         NOBREAK RBF
       </text>
-
       <text
         x="208"
         y="170"
@@ -663,8 +676,6 @@ function NobreakModule({
       >
         BANCO DE BATERIAS
       </text>
-
-      {/* Células de bateria */}
       {[0, 1, 2, 3].map((i) => (
         <motion.rect
           key={i}
@@ -674,7 +685,7 @@ function NobreakModule({
           height="16"
           rx="3"
           animate={{
-            fill: active ? cellOn : blackout ? "#1b2433" : "#e4eaf4",
+            fill: active ? cellOn : blackout ? "#1b2433" : "#243044",
             opacity: onBattery ? [0.45, 1, 0.45] : 1,
           }}
           transition={{
@@ -684,35 +695,24 @@ function NobreakModule({
           }}
         />
       ))}
-
-      {/* Status */}
       <motion.circle
         cx="214"
         cy="218"
         r="4.5"
         animate={{
-          fill: onBattery ? "#12b981" : active ? "#3a5dae" : ui.muted,
+          fill: onBattery ? "#12b981" : active ? "#7eb6ff" : ui.muted,
           opacity: active ? [1, 0.3, 1] : 0.6,
         }}
         transition={{ duration: 1.2, repeat: active ? Infinity : 0 }}
-        style={
-          active
-            ? {
-                filter: `drop-shadow(0 0 6px ${onBattery ? "#12b981" : "#3a5dae"})`,
-              }
-            : undefined
-        }
       />
       <motion.text
         x="228"
         y="222"
         style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: "0.1em" }}
-        animate={{ fill: onBattery ? "#12b981" : active ? "#3a5dae" : ui.muted }}
+        animate={{ fill: onBattery ? "#12b981" : active ? "#7eb6ff" : ui.muted }}
       >
         {onBattery ? "EM BATERIA" : active ? "ONLINE · REDE OK" : "STANDBY"}
       </motion.text>
-
-      {/* Grade de ventilação */}
       {[0, 1, 2, 3].map((i) => (
         <line
           key={i}
@@ -726,8 +726,6 @@ function NobreakModule({
           opacity={active ? 0.55 : 0.9}
         />
       ))}
-
-      {/* Selo de comutação instantânea */}
       <AnimatePresence>
         {onBattery ? (
           <motion.g
@@ -764,6 +762,7 @@ function LoadNode({
   state,
   color,
   ui,
+  compact,
   renderIcon,
 }: {
   y: number;
@@ -772,6 +771,7 @@ function LoadNode({
   state: LoadState;
   color: string;
   ui: Ui;
+  compact?: boolean;
   renderIcon: (color: string) => React.ReactNode;
 }) {
   const alarm = state === "risk";
@@ -795,7 +795,6 @@ function LoadNode({
           stroke: alarm || guarded ? color : ui.edge,
         }}
         strokeWidth={alarm || guarded ? 1.8 : 1.4}
-        transition={{ duration: 0.35 }}
         style={
           guarded
             ? { filter: "drop-shadow(0 0 12px rgba(18,185,129,0.3))" }
@@ -804,27 +803,24 @@ function LoadNode({
               : undefined
         }
       />
-
       <g transform={`translate(536 ${y})`}>{renderIcon(color)}</g>
-
       <text
         x="572"
-        y={y - 4}
-        style={{ fontSize: 16, fontWeight: 700, fill: ui.label }}
+        y={compact ? y + 4 : y - 4}
+        style={{ fontSize: compact ? 15 : 16, fontWeight: 700, fill: ui.label }}
       >
         {title}
       </text>
-      <motion.text
-        x="572"
-        y={y + 17}
-        className="max-sm:hidden"
-        style={{ fontSize: 12.5, fontWeight: 500 }}
-        animate={{ fill: alarm ? color : ui.muted }}
-      >
-        {metric}
-      </motion.text>
-
-      {/* Selo de estado */}
+      {compact ? null : (
+        <motion.text
+          x="572"
+          y={y + 17}
+          style={{ fontSize: 12.5, fontWeight: 500 }}
+          animate={{ fill: alarm ? color : ui.muted }}
+        >
+          {metric}
+        </motion.text>
+      )}
       <motion.rect
         x="790"
         y={y - 13}
@@ -832,7 +828,6 @@ function LoadNode({
         height="26"
         rx="13"
         animate={{ fill: alarm || guarded ? color : ui.chipBg }}
-        transition={{ duration: 0.3 }}
       />
       <motion.text
         x="847"
@@ -850,7 +845,6 @@ function LoadNode({
 }
 
 const ICONS: Record<string, (color: string) => React.ReactNode> = {
-  // Rack de servidores
   dc: (color) => (
     <g stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="round">
       {[-16, -4, 8].map((oy) => (
@@ -862,7 +856,6 @@ const ICONS: Record<string, (color: string) => React.ReactNode> = {
       ))}
     </g>
   ),
-  // Monitor cardíaco
   hosp: (color) => (
     <g stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="round">
       <rect x="-15" y="-14" width="30" height="22" rx="3" />
@@ -871,7 +864,6 @@ const ICONS: Record<string, (color: string) => React.ReactNode> = {
       <line x1="0" y1="8" x2="0" y2="14" strokeWidth="2" />
     </g>
   ),
-  // Planta industrial
   ind: (color) => (
     <g stroke={color} strokeWidth="1.8" fill="none" strokeLinecap="round">
       <path d="M -15 12 V -2 L -5 5 V -2 L 5 5 V -2 L 15 5 V 12 Z" />

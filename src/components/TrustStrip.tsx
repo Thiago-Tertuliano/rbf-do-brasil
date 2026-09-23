@@ -1,6 +1,7 @@
 "use client";
 
 import { Reveal } from "@/components/Reveal";
+import { cn } from "@/lib/utils";
 import {
   BatteryCharging,
   Factory,
@@ -9,25 +10,31 @@ import {
 } from "lucide-react";
 
 const ITEMS = [
-  { icon: Factory, label: "Fabricante" },
-  { icon: BatteryCharging, label: "Instalação" },
-  { icon: Headphones, label: "Manutenção" },
-  { icon: Recycle, label: "ECOSUS" },
+  { icon: Factory, label: "Fabricante", caption: "Engenharia própria" },
+  { icon: BatteryCharging, label: "Instalação", caption: "Equipe técnica" },
+  { icon: Headphones, label: "Manutenção", caption: "Preventiva e corretiva" },
+  { icon: Recycle, label: "ECOSUS", caption: "Logística reversa" },
 ] as const;
 
 export function TrustStrip() {
   return (
-    <section className="relative overflow-hidden border-y border-accent/20 bg-gradient-to-r from-accent/5 via-accent/10 to-accent/5">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-px bg-accent/10 md:grid-cols-4">
+    <section className="relative border-t-[3px] border-t-accent border-b border-[#d8e0ec] bg-[#f6f8fc]">
+      <div className="mx-auto grid max-w-6xl grid-cols-2 md:grid-cols-4">
         {ITEMS.map((item, i) => (
-          <Reveal key={item.label} delay={i * 0.06} className="bg-panel/80 backdrop-blur-sm">
-            <div className="group flex items-center gap-3 px-5 py-6 transition hover:bg-panel md:justify-center md:px-6">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-accent/10 transition group-hover:bg-accent/20">
-                <item.icon className="size-5 text-accent" strokeWidth={1.8} />
-              </div>
-              <span className="font-display text-sm font-semibold tracking-wide text-ice">
+          <Reveal key={item.label} delay={i * 0.05}>
+            <div
+              className={cn(
+                "flex flex-col items-center px-5 py-8 text-center md:px-8",
+                i % 2 === 0 && "border-r border-[#d8e0ec]",
+                i < 2 && "border-b border-[#d8e0ec] md:border-b-0",
+                i < 3 && "md:border-r md:border-[#d8e0ec]",
+              )}
+            >
+              <item.icon className="size-5 text-accent" strokeWidth={1.5} />
+              <p className="mt-3 font-display text-[0.72rem] font-semibold tracking-[0.22em] text-ice uppercase">
                 {item.label}
-              </span>
+              </p>
+              <p className="mt-1 text-[0.75rem] text-muted">{item.caption}</p>
             </div>
           </Reveal>
         ))}
